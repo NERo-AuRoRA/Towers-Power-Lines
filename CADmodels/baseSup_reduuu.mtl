@@ -1,0 +1,8 @@
+newmtl Chrome_-_Black_0
+Kd 0.100000 0.100000 0.100000
+
+newmtl Plastic_-_Translucent_Glossy_(Yellow)_0
+Kd 0.737255 0.737255 0.737255
+
+newmtl Plastic_-_Matte_(Black)_0
+Kd 0.337255 0.337255 0.337255
