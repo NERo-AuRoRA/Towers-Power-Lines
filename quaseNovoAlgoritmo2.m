@@ -133,10 +133,15 @@ u2 = [0,0.5,0.5];
 v3 = [0,-1,0];      
 u3 = [0,0,1];
 
+bLinha1 = 
+bLinha2 = 
+
 % Conjunto dos bambolês:
-Bmb = [b1;b2;b3;b4;b5;b6;b7]; 
+Bmb = [b1;bLinha1;b2;bLinha2;b3;b4;b5;InvbLinha1;b6;InvbLinha2,b7]; 
 n1 = [1 0 0];
-Nb = -[n1;n2;n3;-[0 1 0];-n1;-n2;-n3];
+
+nbLinha1 =[1 0 0];
+Nb = -[n1;n2;nbLinha1;n3;nbLinha1;-[0 1 0];-n1;-nbLinha1;-nbLinha1;-n2;-n3];
 Vb = [v1;v2;v1;v1;v1;v1;v1];  
 Ub = [u1;u2;u1;u1;u1;u1;u1];
 

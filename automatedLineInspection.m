@@ -103,6 +103,7 @@ n2 = [1,0,0];
 b3 = tower(3).pPos.X([1 2 3])' + [0 10 12.5];
 n3 = [1,0,0];
 
+%% ida
 b4 = b3 + [10 -10 0];
 b5 = b3 - [0 b3(2) 0];
 b6 = b2 -[0 2*b2(2) 0];
@@ -133,33 +134,100 @@ u2 = [0,0.5,0.5];
 v3 = [0,-1,0];      
 u3 = [0,0,1];
 
+
+
+
 % Conjunto dos bambolês:
 Bmb = [b1;b2;b3;b4;b5;b6;b7]; 
 n1 = [1 0 0];
 Nb = -[n1;n2;n3;-[0 1 0];-n1;-n2;-n3];
-Vb = [v1;v2;v1;v1;v1;v1;v1];  
-Ub = [u1;u2;u1;u1;u1;u1;u1];
+
+% linhas = [{line_01{1}},{line_02{1}},{line_03{1}},{line_01{2}},{line_02{2}},{line_03{2}}];
+%     {line_04{1}},{line_05{1}},{line_06{1}}];
+
+linhas = [{line_04{1}},{line_04{2}},{flip(line_01{2},2)},{flip(line_01{1},2)}];
+
+bTorre = [];
+for ii= 1:size(linhas,2)
+    % Pontos a usar: 1, round(mean(size(linhas(ii){:,ii},1))
+    Q1 = round(size(linhas{ii},2)/4);
+    Q2 = round(size(linhas{ii},2)/2);
+    Q3 = round(size(linhas{ii},2)*3/4);
+    
+%     linhas{ii}(:,MEIO)
+    vec = [linhas{ii}(:,1) linhas{ii}(:,Q1) linhas{ii}(:,Q2) linhas{ii}(:,Q3) linhas{ii}(:,end)];
+    
+    if ii==1 || ii==2
+        vec = vec + [0 5 -1]';
+    else 
+        vec = vec + [0 -5 -1]';
+    end   
+     
+    bTorre = [bTorre vec];
+end
+
+
+nTorre = [1 0 0]';
+for jj = 2:size(bTorre,2)
+    nTorre = [nTorre, -bTorre(:,jj)-bTorre(:,jj-1)./norm(bTorre(:,jj)-bTorre(:,jj-1))];
+end
+
+% bTorre = bTorre';
+% MAX = size(Bmb,1);
+% C1= 1;
+% CC = 1;
+% while CC <= 15
+%     Bmb = [Bmb(1:C1,:); bTorre(CC,:); bTorre(CC+1,:); bTorre(CC+2,:); Bmb(C1:end,:)];
+%        
+%     C1= C1+4;
+%     CC = CC+3;
+% end
+% 
+% nTorre = nTorre';
+% MAX = size(Nb,1);
+% C1= 1;
+% CC = 1;
+% while CC <= 15
+%     Nb = [Nb(1:C1,:); nTorre(CC,:); nTorre(CC+1,:); nTorre(CC+2,:); Nb(C1:end,:)];
+%        
+%     C1= C1+4;
+%     CC = CC+3;
+% end
+Bmb = bTorre';
+Nb = nTorre';
+Bmb = [Bmb(1:10,:); [70 10 18]; Bmb(11:end,:)];
+Nb = [Nb(1:10,:); [0 -1 0]; Nb(11:end,:)];
+
+Vb = [];
+Ub = [];
+for SEILA = 1:size(Bmb,1)
+   Vb = [Vb;v1]; 
+   Ub = [Ub;u1];
+end
+Vb(2,:) = v2;
+Ub(2,:) = u2;
+% Vb = [v1;v2;v1;v1;v1;v1;v1];  
+% Ub = [u1;u2;u1;u1;u1;u1;u1];
 
 Curva =[];        Curva.Vmax = .15;
 %% Plots ==================================================================
-[CB,dCB,Curva] = CurvaBmb(p0,n0,Bmb,Nb,Vb,Ub,Curva);
+[CB,dCB,Curva] = CurvaBmb(p0,n0,Bmb,Nb,Vb,Ub,Curva,0.05);
 
-for bi = 1:size(Nb,1)
-    plot3(Bmb(bi,1),Bmb(bi,2),0,'b+','MarkerSize',10,'LineWidth',2);
-    plot3([Bmb(bi,1),Bmb(bi,1)],[Bmb(bi,2),Bmb(bi,2)],[Bmb(bi,3),0],'b--')
-end
+% for bi = 1:size(Nb,1)
+%     plot3(Bmb(bi,1),Bmb(bi,2),0,'b+','MarkerSize',10,'LineWidth',2);
+%     plot3([Bmb(bi,1),Bmb(bi,1)],[Bmb(bi,2),Bmb(bi,2)],[Bmb(bi,3),0],'b--')
+% end
 % plot3(b2(1),b2(2),0,'b+','MarkerSize',10,'LineWidth',2);
 % plot3([b2(1),b2(1)],[b2(2),b2(2)],[b2(3),0],'b--')
 % 
 % plot3(b3(1),b3(2),0,'b+','MarkerSize',10,'LineWidth',2);
 % plot3([b3(1),b3(1)],[b3(2),b3(2)],[b3(3),0],'b--')
 
-plot3([0,0],[0,0],[0.75,0],'k--')
+% plot3([0,0],[0,0],[0.75,0],'k--')
 
 % %
 % xlim([-10 5]); ylim([-10 5]); zlim([-1 5]);
-%xlim([-10 10]); ylim([-10 20]); zlim([-1 20]);
-
+xlim([0 5]); ylim([-10 0]); zlim([-1 5]);
 %%
 t = tic;
 tc = tic;
@@ -167,8 +235,9 @@ tp = tic;
 rho = 0;
 Curva.Vmax = 0.3;
 XX = [];
-while Curva.Pos < Curva.Size
-    if toc(tc) > A.pPar.Ts
+while toc(t)< 5*60
+%     Curva.Pos < Curva.Size
+    if toc(tc) > 1/30
         % Atualiza tempo:
         tc = tic;  tt = toc(t); 
         

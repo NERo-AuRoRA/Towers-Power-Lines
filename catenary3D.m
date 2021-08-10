@@ -1,4 +1,3 @@
-
 function X = catenary3D(pointA,pointB,length)
 
 dist = norm(pointA-pointB);
