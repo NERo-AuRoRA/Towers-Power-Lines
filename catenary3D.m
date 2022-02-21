@@ -7,7 +7,8 @@ if nargin < 3 %Determinar Comprimento automaticamente baseado na distância entre
     %Aplicando uma queda de 16% aproximadamente em relação ao comprimento
     %da linha. Coloquei 16% porque medi uma foto de linha de transmissão
     %com régua.
-    queda = 0.16;
+    queda = 0.08;
+%     0.16;
     length = 2*sqrt( (dist/2)^2 + (queda*dist)^2);
 end
 

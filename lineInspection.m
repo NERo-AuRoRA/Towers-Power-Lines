@@ -22,7 +22,7 @@ ax.FontSize = 12;
 xlabel({'$$x$$ [m]'},'FontSize',18,'FontWeight','bold','interpreter','latex');
 ylabel({'$$y$$ [m]'},'FontSize',18,'FontWeight','bold','interpreter','latex');
 zlabel({'$$z$$ [m]'},'FontSize',18,'FontWeight','bold','interpreter','latex');
-axis equal
+% axis equal
 view(3)
 view(45,30)
 grid on
@@ -140,7 +140,9 @@ Nb = -[n1;n2;n3;-[0 1 0];-n1;-n2;-n3];
 Vb = [v1;v2;v1;v1;v1;v1;v1];  
 Ub = [u1;u2;u1;u1;u1;u1;u1];
 
-Curva =[];        Curva.Vmax = .15;
+Curva =[];        
+Curva.Vmax = 15;
+% .15;
 %% Plots ==================================================================
 [CB,dCB,Curva] = CurvaBmb(p0,n0,Bmb,Nb,Vb,Ub,Curva);
 
@@ -157,15 +159,16 @@ end
 plot3([0,0],[0,0],[0.75,0],'k--')
 
 % %
-% xlim([-10 5]); ylim([-10 5]); zlim([-1 5]);
-%xlim([-10 10]); ylim([-10 20]); zlim([-1 20]);
+xlim([-10 5]); ylim([-10 5]); zlim([-1 5]);
+% xlim([-10 10]); ylim([-10 20]); zlim([-1 20]);
 
 %%
 t = tic;
 tc = tic;
 tp = tic;
 rho = 0;
-Curva.Vmax = 0.3;
+Curva.Vmax =10;
+% 0.3;
 XX = [];
 while Curva.Pos < Curva.Size
     if toc(tc) > A.pPar.Ts
@@ -174,15 +177,16 @@ while Curva.Pos < Curva.Size
         
         % Mostrar progresso:
         clc 
-        fprintf('Posição no caminho: %i \n',Curva.Pos)
+        fprintf('Posicao no caminho: %i \n',Curva.Pos)
         fprintf('Percorrendo: %0.2g%% \n',(Curva.Pos/Curva.Size)*100)
         
-        A.rGetSensorData % Get data 
+%         A.rGetSensorData % Get data 
         
         % Controlador
-        [A,Curva,rho] = cPathFollowing(A,Curva,.5);
+%         [A,Curva,rho] = cPathFollowingLines(A,Curva,.5);
         A.pPos.Xd(6) = atan2(Curva.dX(2,Curva.Pos),Curva.dX(1,Curva.Pos));
-        A.pPos.Xr([1:3,6:9]) = [A.pPos.Xd(1:3);A.pPos.Xd(6);A.pPos.Xd(7:9)];
+        A.pPos.Xd([1:3,6:9]) = [Curva.X(1:3,Curva.Pos);A.pPos.Xd(6);A.pPos.Xd(7:9)];
+%         [A.pPos.Xd(1:3);
         
 %         if rho<0.35
 %             A.pSC.Kinematics_control = 1;
@@ -196,7 +200,12 @@ while Curva.Pos < Curva.Size
 
         % Histórico:  12        12      1   
         XX = [XX [A.pPos.Xd; A.pPos.X; tt]];
-        Curva.rho = [Curva.rho,rho];
+        Curva.rho = rho;
+%         [Curva.rho,rho];
+
+        if norm(A.pPos.X(1:3) - Curva.X(1:3,Curva.Pos))<= 0.5
+            Curva.Pos = Curva.Pos+1;
+        end
         
         try 
             delete(pDrone)

@@ -132,9 +132,9 @@ u2 = [0,0.5,0.5];
 
 v3 = [0,-1,0];      
 u3 = [0,0,1];
-
-bLinha1 = 
-bLinha2 = 
+% 
+% bLinha1 = 
+% bLinha2 = 
 
 % Conjunto dos bambolês:
 Bmb = [b1;bLinha1;b2;bLinha2;b3;b4;b5;InvbLinha1;b6;InvbLinha2,b7]; 

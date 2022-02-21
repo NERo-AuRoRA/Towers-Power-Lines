@@ -136,7 +136,6 @@ u3 = [0,0,1];
 
 
 
-
 % Conjunto dos bambolês:
 Bmb = [b1;b2;b3;b4;b5;b6;b7]; 
 n1 = [1 0 0];
@@ -167,9 +166,14 @@ for ii= 1:size(linhas,2)
 end
 
 
+% nTorre = [1 0 0]';
+% for jj = 2:size(bTorre,2)
+%     nTorre = [nTorre, -bTorre(:,jj)-bTorre(:,jj-1)./norm(bTorre(:,jj)-bTorre(:,jj-1))];
+% end
+
 nTorre = [1 0 0]';
 for jj = 2:size(bTorre,2)
-    nTorre = [nTorre, -bTorre(:,jj)-bTorre(:,jj-1)./norm(bTorre(:,jj)-bTorre(:,jj-1))];
+    nTorre = [nTorre, (-bTorre(:,jj)+bTorre(:,jj-1))./norm(bTorre(:,jj)-bTorre(:,jj-1))];
 end
 
 % bTorre = bTorre';
@@ -193,10 +197,11 @@ end
 %     C1= C1+4;
 %     CC = CC+3;
 % end
+
 Bmb = bTorre';
 Nb = nTorre';
 Bmb = [Bmb(1:10,:); [70 10 18]; Bmb(11:end,:)];
-Nb = [Nb(1:10,:); [0 -1 0]; Nb(11:end,:)];
+Nb = [Nb(1:10,:); [0 1 0]; Nb(11:end,:)];
 
 Vb = [];
 Ub = [];
@@ -211,7 +216,7 @@ Ub(2,:) = u2;
 
 Curva =[];        Curva.Vmax = .15;
 %% Plots ==================================================================
-[CB,dCB,Curva] = CurvaBmbLines(p0,n0,Bmb,-Nb,Vb,Ub,Curva,0.05);
+[CB,dCB,Curva] = CurvaBmbLines(p0,n0,Bmb,Nb,Vb,Ub,Curva,0.75);
 
 
 % for bi = 1:size(Nb,1)
@@ -223,60 +228,52 @@ Curva =[];        Curva.Vmax = .15;
 % 
 % plot3(b3(1),b3(2),0,'b+','MarkerSize',10,'LineWidth',2);
 % plot3([b3(1),b3(1)],[b3(2),b3(2)],[b3(3),0],'b--')
-
+% 
 % plot3([0,0],[0,0],[0.75,0],'k--')
 
 % %
 % xlim([-10 5]); ylim([-10 5]); zlim([-1 5]);
-xlim([0 5]); ylim([-10 0]); zlim([-1 5]);
+% xlim([0 5]); ylim([-10 0]); zlim([-1 5]);
 %%
-t = tic;
-tc = tic;
-tp = tic;
-rho = 0;
-Curva.Vmax = 0.3;
-XX = [];
-while toc(t)< 5*60
-%     Curva.Pos < Curva.Size
-    if toc(tc) > 1/30
-        % Atualiza tempo:
-        tc = tic;  tt = toc(t); 
-        
-        % Mostrar progresso:
-        clc 
-        fprintf('Posicao no caminho: %i \n',Curva.Pos)
-        fprintf('Percorrendo: %0.2g%% \n',(Curva.Pos/Curva.Size)*100)
-        
-        A.rGetSensorData % Get data 
-        
-        % Controlador
-%         [A,Curva,rho] = cPathFollowingLines(A,Curva,.5);
-%         [A,Curva,rho] = cPathFollowingLines(A,Curva);
-        A.pPos.Xd(6) = atan2(Curva.dX(2,Curva.Pos),Curva.dX(1,Curva.Pos));
-        A.pPos.Xr([1:3,6:9]) = [A.pPos.Xd(1:3);A.pPos.Xd(6);A.pPos.Xd(7:9)];
-        
-%         if rho<0.35
-%             A.pSC.Kinematics_control = 1;
-%         else
-%             A.pSC.Kinematics_control = 0; 
+% t = tic;
+% tc = tic;
+% tp = tic;
+% rho = 0;
+% Curva.Vmax = 0.3;
+% XX = [];
+% while toc(t)< 5*60
+% %     Curva.Pos < Curva.Size
+%     if toc(tc) > 1/30
+%         % Atualiza tempo:
+%         tc = tic;  tt = toc(t); 
+%         
+%         % Mostrar progresso:
+%         clc 
+%         fprintf('Posicao no caminho: %i \n',Curva.Pos)
+%         fprintf('Percorrendo: %0.2g%% \n',(Curva.Pos/Curva.Size)*100)
+%         
+%         A.rGetSensorData % Get data 
+%         
+%         % Controlador
+% %         [A,Curva,rho] = cPathFollowingLines(A,Curva,.5);
+%         A.pPos.Xd(6) = atan2(Curva.dX(2,Curva.Pos),Curva.dX(1,Curva.Pos));
+%         A.pPos.Xr([1:3,6:9]) = [A.pPos.Xd(1:3);A.pPos.Xd(6);A.pPos.Xd(7:9)];
+%         
+%         A = cUnderActuatedController(A); 
+%         A.rSendControlSignals
+% 
+%         % Historico:  12        12      1   
+%         XX = [XX [A.pPos.Xd; A.pPos.X; tt]];
+%         Curva.rho = [Curva.rho,rho];
+%         
+%         try 
+%             delete(pDrone)
 %         end
-             
-%         A.pSC.tcontrole = tc;
-        A = cUnderActuatedController(A); 
-        A.rSendControlSignals
-
-        % Histórico:  12        12      1   
-        XX = [XX [A.pPos.Xd; A.pPos.X; tt]];
-        Curva.rho = [Curva.rho,rho];
-        
-        try 
-            delete(pDrone)
-        end
-
-
-        A.mCADplot; 
-        pDrone = plot3(A.pPos.X(1),A.pPos.X(2),A.pPos.X(3),'ok','MarkerSize',10);
-        drawnow
-    end
-                 
-end
+% 
+% 
+%         A.mCADplot; 
+%         pDrone = plot3(A.pPos.X(1),A.pPos.X(2),A.pPos.X(3),'ok','MarkerSize',10);
+%         drawnow
+%     end
+%                  
+% end
